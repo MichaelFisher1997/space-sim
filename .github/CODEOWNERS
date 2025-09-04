@@ -1,0 +1,6 @@
+# .github/CODEOWNERS
+/contracts/                @you
+/engine/renderer/**        @you
+/engine/sim/**             @you
+/engine/ui/**              @you
+/apps/sandbox/**           @you

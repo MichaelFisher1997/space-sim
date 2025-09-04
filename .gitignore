@@ -1,0 +1,13 @@
+# space-sim/.gitignore
+/build
+/.cache
+/.vs
+.DS_Store
+*.user
+*.log
+*.obj
+*.o
+*.a
+*.so
+*.dll
+*.exe

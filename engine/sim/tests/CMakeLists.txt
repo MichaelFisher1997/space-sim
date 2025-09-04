@@ -1,0 +1,3 @@
+add_executable(test_golden_stub test_golden_stub.cpp)
+target_link_libraries(test_golden_stub PRIVATE sim_mock)
+add_test(NAME sim_golden_stub COMMAND test_golden_stub)

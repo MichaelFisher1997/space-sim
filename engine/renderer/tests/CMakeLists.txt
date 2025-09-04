@@ -1,0 +1,3 @@
+add_executable(test_sphere_stub test_sphere_stub.cpp)
+target_link_libraries(test_sphere_stub PRIVATE renderer_mock)
+add_test(NAME renderer_sphere_stub COMMAND test_sphere_stub)

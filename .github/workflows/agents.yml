@@ -1,0 +1,103 @@
+name: SpaceSim Agents
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 9 * * 1-5"
+
+jobs:
+  agent:
+    name: Run ${{ matrix.agent }} agent
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - agent: renderer
+            path: engine/renderer
+            prompt: prompts/renderer.md
+          - agent: sim
+            path: engine/sim
+            prompt: prompts/sim.md
+          - agent: ui
+            path: engine/ui
+            prompt: prompts/ui.md
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    env:
+      XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      MODEL_ID: xai:grok-code-fast-1
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps (cmake, SDL2, Vulkan)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build build-essential \
+            libsdl2-dev libvulkan-dev vulkan-tools mesa-vulkan-drivers
+
+      - name: Install OpenCode CLI
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+
+      - name: Configure provider (if keys present)
+        run: |
+          if [ -n "${XAI_API_KEY}" ]; then
+            opencode providers add xai --api-key "${XAI_API_KEY}"
+            echo "Using xAI provider"
+          elif [ -n "${OPENROUTER_API_KEY}" ]; then
+            opencode providers add openrouter --api-key "${OPENROUTER_API_KEY}"
+            echo "Using OpenRouter provider"
+          else
+            echo "No API key present; attempting any public access available."
+          fi
+
+      - name: New branch for agent
+        run: |
+          git config user.name "bot-${{ matrix.agent }}"
+          git config user.email "bot+${{ matrix.agent }}@users.noreply.github.com"
+          git checkout -b "agent/${{ matrix.agent }}-${{ github.run_id }}"
+
+      - name: Run ${{ matrix.agent }} with path scope
+        run: |
+          printf "\n\n### FILE SCOPE ###\nOnly modify: ${{ matrix.path }}/, contracts/ (read-only unless instructed), assets/ for renderer.\n" >> ${{ matrix.prompt }}
+          opencode run \
+            --model "${MODEL_ID}" \
+            --working-dir "." \
+            --allow-path "${{ matrix.path }}" \
+            --allow-path "contracts" \
+            --allow-path "assets" \
+            --prompt-file "${{ matrix.prompt }}"
+
+      - name: Build & test
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --target all
+          ctest --test-dir build --output-on-failure || true
+
+      - name: Commit changes
+        run: |
+          if ! git diff --quiet; then
+            git add -A
+            git commit -m "agent(${{ matrix.agent }}): automated updates"
+          else
+            echo "No changes from agent."
+          fi
+
+      - name: Create PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: "agent/${{ matrix.agent }}-${{ github.run_id }}"
+          title: "Agent: ${{ matrix.agent }} updates"
+          body: |
+            Automated changes from `${{ matrix.agent }}` agent.
+            - Prompt: `${{ matrix.prompt }}`
+            - Path scope: `${{ matrix.path }}`
+            - Model: `${{ env.MODEL_ID }}`
+          labels: ["agent", "${{ matrix.agent }}"]
