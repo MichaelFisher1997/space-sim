@@ -1,5 +1,7 @@
 # Space Sim (SDL2 + Vulkan) — Starter
 
+> **🧪 Experimental Project**: This repository is an experiment exploring parallel AI agent development workflows. Three specialized AI agents (renderer, simulation, UI) work simultaneously on different parts of the codebase, each creating focused pull requests to break down complex development tasks into manageable, parallel streams.
+
 ## Quick Start with Nix (Recommended)
 
 ```bash
