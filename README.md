@@ -1,7 +1,27 @@
 # Space Sim (SDL2 + Vulkan) — Starter
 
-## Build
+## Quick Start with Nix (Recommended)
+
 ```bash
+# Enter development environment
+nix develop
+
+# Build and run
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target all
+ctest --test-dir build --output-on-failure
+./build/apps/sandbox/sandbox
+```
+
+## Manual Build (Alternative)
+
+```bash
+# Install dependencies manually
+sudo apt-get update
+sudo apt-get install -y cmake ninja-build build-essential \
+  libsdl2-dev libvulkan-dev vulkan-tools mesa-vulkan-drivers
+
+# Build
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target all
 ctest --test-dir build --output-on-failure
