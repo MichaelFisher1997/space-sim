@@ -30,7 +30,8 @@ jobs:
     env:
       XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-      MODEL_ID: xai:grok-code-fast-1
+      OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+      MODEL_ID: opencode:Grok Code Fast 1
 
     steps:
       - uses: actions/checkout@v4
@@ -50,7 +51,10 @@ jobs:
 
       - name: Configure provider (if keys present)
         run: |
-          if [ -n "${XAI_API_KEY}" ]; then
+          if [ -n "${OPENCODE_API_KEY}" ]; then
+            opencode providers add opencode --api-key "${OPENCODE_API_KEY}"
+            echo "Using OpenCode provider"
+          elif [ -n "${XAI_API_KEY}" ]; then
             opencode providers add xai --api-key "${XAI_API_KEY}"
             echo "Using xAI provider"
           elif [ -n "${OPENROUTER_API_KEY}" ]; then
@@ -63,7 +67,9 @@ jobs:
       - name: Pick model safely
         run: |
           if [ -z "${MODEL_ID}" ]; then
-            if [ -n "${XAI_API_KEY}" ]; then
+            if [ -n "${OPENCODE_API_KEY}" ]; then
+              echo "MODEL_ID=opencode:Grok Code Fast 1" >> $GITHUB_ENV
+            elif [ -n "${XAI_API_KEY}" ]; then
               echo "MODEL_ID=xai:grok-code-fast-1" >> $GITHUB_ENV
             elif [ -n "${OPENROUTER_API_KEY}" ]; then
               echo "MODEL_ID=openrouter:xai/grok-code-fast" >> $GITHUB_ENV
