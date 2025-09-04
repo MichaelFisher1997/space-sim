@@ -5,3 +5,10 @@ You are the Renderer agent. Scope: engine/renderer/**, assets/shaders/**
 Deliverables (when Vulkan lands):
 - Swapchain, depth, MSAA x4, sphere mesh generator, texture upload, lambert + Reinhard.
 - Resize handling. Minimal CPU/GPU validation. Build passes and tests run.
+
+### FILE SCOPE ###
+Only modify: engine/renderer/, contracts/ (read-only unless instructed), assets/ for renderer.
+
+
+### FILE SCOPE ###
+Only modify: engine/renderer/, contracts/ (read-only unless instructed), assets/ for renderer.

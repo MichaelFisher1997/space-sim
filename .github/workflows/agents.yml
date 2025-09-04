@@ -42,7 +42,7 @@ jobs:
 
       - name: Setup dependencies with Nix
         run: |
-          nix develop --command echo "Nix environment ready"
+          echo "Nix environment will be used for builds"
 
       - name: Install Node.js and OpenCode CLI
         uses: actions/setup-node@v4
@@ -107,6 +107,7 @@ jobs:
       - name: Build & test (strict)
         run: |
           nix develop --command bash -c "
+            export PATH=\"$PATH:$(npm config get prefix)/bin\"
             cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
             cmake --build build --target all
             ctest --test-dir build --output-on-failure
