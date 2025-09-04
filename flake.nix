@@ -29,6 +29,7 @@
             # Development tools
             git
             pkg-config
+            nodejs_18 # for npm and opencode CLI
 
             # Optional: for development
             clang-tools # for clang-format

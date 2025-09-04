@@ -44,12 +44,17 @@ jobs:
         run: |
           nix develop --command echo "Nix environment ready"
 
-      - name: Install OpenCode CLI (pinned)
+      - name: Install Node.js and OpenCode CLI
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install OpenCode CLI via npm
         run: |
-           curl -fsSL https://opencode.ai/install | bash
-           echo "$HOME/.opencode/bin" >> $GITHUB_PATH
-           export PATH="$HOME/.opencode/bin:$PATH"
-           opencode --version
+          npm install -g opencode
+          echo "$(npm config get prefix)/bin" >> $GITHUB_PATH
+          export PATH="$(npm config get prefix)/bin:$PATH"
+          opencode --version
 
       - name: Configure provider (if keys present)
         run: |
