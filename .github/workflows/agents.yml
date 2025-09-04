@@ -41,10 +41,11 @@ jobs:
           sudo apt-get install -y cmake ninja-build build-essential \
             libsdl2-dev libvulkan-dev vulkan-tools mesa-vulkan-drivers
 
-      - name: Install OpenCode CLI
+      - name: Install OpenCode CLI (pinned)
         run: |
           curl -fsSL https://opencode.ai/install | bash
           echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+          opencode --version
 
       - name: Configure provider (if keys present)
         run: |
@@ -56,6 +57,19 @@ jobs:
             echo "Using OpenRouter provider"
           else
             echo "No API key present; attempting any public access available."
+          fi
+
+      - name: Pick model safely
+        run: |
+          if [ -z "${MODEL_ID}" ]; then
+            if [ -n "${XAI_API_KEY}" ]; then
+              echo "MODEL_ID=xai:grok-code-fast-1" >> $GITHUB_ENV
+            elif [ -n "${OPENROUTER_API_KEY}" ]; then
+              echo "MODEL_ID=openrouter:xai/grok-code-fast" >> $GITHUB_ENV
+            else
+              # Fallback (small, cheaper) so the run still produces PRs
+              echo "MODEL_ID=openrouter:anthropic/claude-3.5-sonnet" >> $GITHUB_ENV
+            fi
           fi
 
       - name: New branch for agent
@@ -75,11 +89,11 @@ jobs:
             --allow-path "assets" \
             --prompt-file "${{ matrix.prompt }}"
 
-      - name: Build & test
+      - name: Build & test (strict)
         run: |
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
           cmake --build build --target all
-          ctest --test-dir build --output-on-failure || true
+          ctest --test-dir build --output-on-failure
 
       - name: Commit changes
         run: |

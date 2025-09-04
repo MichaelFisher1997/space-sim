@@ -16,6 +16,7 @@ find_library(VULKAN_LIB Vulkan)
 add_subdirectory(engine/renderer)
 add_subdirectory(engine/sim)
 add_subdirectory(engine/ui)
+add_subdirectory(apps/contract_check)
 add_subdirectory(apps/sandbox)
 
 include(CTest)

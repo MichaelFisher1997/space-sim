@@ -1,0 +1,18 @@
+{
+  "bodies": [
+    {
+      "name": "Sun",
+      "radius_m": 696340000,
+      "position_m": [0, 0, 0],
+      "velocity_mps": [0, 0, 0],
+      "is_star": true
+    },
+    {
+      "name": "Earth",
+      "radius_m": 6371000,
+      "position_m": [149597870700, 0, 0],
+      "velocity_mps": [0, 29780, 0],
+      "is_star": false
+    }
+  ]
+}

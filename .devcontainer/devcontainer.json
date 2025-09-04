@@ -1,0 +1,6 @@
+{
+  "name": "space-sim",
+  "image": "mcr.microsoft.com/devcontainers/cpp:ubuntu-24.04",
+  "features": { "ghcr.io/devcontainers/features/common-utils:2": {} },
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y libsdl2-dev libvulkan-dev vulkan-tools mesa-vulkan-drivers && cmake -S . -B build -G Ninja"
+}
