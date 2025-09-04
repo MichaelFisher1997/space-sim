@@ -42,7 +42,7 @@ jobs:
             libsdl2-dev libvulkan-dev vulkan-tools mesa-vulkan-drivers
 
       - name: Install OpenCode CLI (pinned)
-         run: |
+        run: |
            curl -fsSL https://opencode.ai/install | bash
            echo "$HOME/.opencode/bin" >> $GITHUB_PATH
            export PATH="$HOME/.opencode/bin:$PATH"
