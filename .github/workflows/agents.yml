@@ -114,4 +114,6 @@ jobs:
             - Prompt: `${{ matrix.prompt }}`
             - Path scope: `${{ matrix.path }}`
             - Model: `${{ env.MODEL_ID }}`
-          labels: ["agent", "${{ matrix.agent }}"]
+          labels: |
+            agent
+            ${{ matrix.agent }}
