@@ -44,16 +44,11 @@ jobs:
         run: |
           echo "Nix environment will be used for builds"
 
-      - name: Install Node.js and OpenCode CLI
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Install OpenCode CLI via npm
+      - name: Install OpenCode CLI
         run: |
-          npm install -g opencode
-          echo "$(npm config get prefix)/bin" >> $GITHUB_PATH
-          export PATH="$(npm config get prefix)/bin:$PATH"
+          curl -fsSL https://opencode.ai/install | bash
+          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.opencode/bin:$PATH"
           opencode --version
 
       - name: Configure provider (if keys present)
@@ -107,7 +102,6 @@ jobs:
       - name: Build & test (strict)
         run: |
           nix develop --command bash -c "
-            export PATH=\"$PATH:$(npm config get prefix)/bin\"
             cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
             cmake --build build --target all
             ctest --test-dir build --output-on-failure

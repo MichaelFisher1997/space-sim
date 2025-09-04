@@ -3,11 +3,11 @@
 ## Quick Start with Nix (Recommended)
 
 ```bash
-# Enter development environment (includes Node.js for opencode CLI)
+# Enter development environment
 nix develop
 
-# Install opencode CLI globally
-npm install -g opencode
+# Install opencode CLI
+curl -fsSL https://opencode.ai/install | bash
 
 # Build and run
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
