@@ -41,7 +41,7 @@ jobs:
           sudo apt-get install -y cmake ninja-build build-essential \
             libsdl2-dev libvulkan-dev vulkan-tools mesa-vulkan-drivers
 
-       - name: Install OpenCode CLI (pinned)
+      - name: Install OpenCode CLI (pinned)
          run: |
            curl -fsSL https://opencode.ai/install | bash
            echo "$HOME/.opencode/bin" >> $GITHUB_PATH
