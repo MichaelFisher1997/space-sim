@@ -53,33 +53,42 @@ jobs:
 
       - name: Configure provider (if keys present)
         run: |
+          echo "Configuring opencode provider..."
           # Try to configure opencode provider first (no API key needed)
-          if opencode providers add opencode 2>/dev/null; then
-            echo "Using OpenCode provider"
+          if opencode providers add opencode; then
+            echo "✅ Using OpenCode provider"
           elif [ -n "${XAI_API_KEY}" ]; then
             opencode providers add xai --api-key "${XAI_API_KEY}"
-            echo "Using xAI provider"
+            echo "✅ Using xAI provider"
           elif [ -n "${OPENROUTER_API_KEY}" ]; then
             opencode providers add openrouter --api-key "${OPENROUTER_API_KEY}"
-            echo "Using OpenRouter provider"
+            echo "✅ Using OpenRouter provider"
           else
-            echo "No API key present; attempting any public access available."
+            echo "⚠️ No API key present; attempting any public access available."
           fi
+          echo "Available providers:"
+          opencode providers list || echo "Failed to list providers"
 
       - name: Pick model safely
         run: |
           if [ -z "${MODEL_ID}" ]; then
             # Try opencode provider first (no API key needed)
-            if opencode providers list | grep -q opencode 2>/dev/null; then
-              echo "MODEL_ID=opencode:Grok Code Fast 1" >> $GITHUB_ENV
+            if opencode providers list 2>/dev/null | grep -q opencode; then
+              echo "MODEL_ID=opencode:grok-code-fast-1" >> $GITHUB_ENV
+              echo "🎯 Selected model: opencode:grok-code-fast-1"
             elif [ -n "${XAI_API_KEY}" ]; then
               echo "MODEL_ID=xai:grok-code-fast-1" >> $GITHUB_ENV
+              echo "🎯 Selected model: xai:grok-code-fast-1"
             elif [ -n "${OPENROUTER_API_KEY}" ]; then
               echo "MODEL_ID=openrouter:xai/grok-code-fast" >> $GITHUB_ENV
+              echo "🎯 Selected model: openrouter:xai/grok-code-fast"
             else
               # Fallback (small, cheaper) so the run still produces PRs
               echo "MODEL_ID=openrouter:anthropic/claude-3.5-sonnet" >> $GITHUB_ENV
+              echo "🎯 Selected fallback model: openrouter:anthropic/claude-3.5-sonnet"
             fi
+          else
+            echo "🎯 Using pre-configured model: ${MODEL_ID}"
           fi
 
       - name: New branch for agent
@@ -88,16 +97,20 @@ jobs:
           git config user.email "bot+${{ matrix.agent }}@users.noreply.github.com"
           git checkout -b "agent/${{ matrix.agent }}-${{ github.run_id }}"
 
-      - name: Run ${{ matrix.agent }} with path scope
-        run: |
-          printf "\n\n### FILE SCOPE ###\nOnly modify: ${{ matrix.path }}/, contracts/ (read-only unless instructed), assets/ for renderer.\n" >> ${{ matrix.prompt }}
-          opencode run \
-            --model "${MODEL_ID}" \
-            --working-dir "." \
-            --allow-path "${{ matrix.path }}" \
-            --allow-path "contracts" \
-            --allow-path "assets" \
-            --prompt-file "${{ matrix.prompt }}"
+       - name: Run ${{ matrix.agent }} with path scope
+         run: |
+           printf "\n\n### FILE SCOPE ###\nOnly modify: ${{ matrix.path }}/, contracts/ (read-only unless instructed), assets/ for renderer.\n" >> ${{ matrix.prompt }}
+           echo "🔧 Running ${{ matrix.agent }} agent with model: ${MODEL_ID}"
+           echo "📁 Working directory: $(pwd)"
+           echo "📄 Prompt file: ${{ matrix.prompt }}"
+           opencode run \
+             --model "${MODEL_ID}" \
+             --working-dir "." \
+             --allow-path "${{ matrix.path }}" \
+             --allow-path "contracts" \
+             --allow-path "assets" \
+             --prompt-file "${{ matrix.prompt }}" \
+             "Improve the ${{ matrix.agent }} module with better functionality, error handling, and performance optimizations. Focus on the file scope restrictions and maintain compatibility with existing contracts."
 
       - name: Build & test (strict)
         run: |
